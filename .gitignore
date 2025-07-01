@@ -1,0 +1,23 @@
+# Object files
+**/objs/
+**/*.o
+
+# Libraries
+**/*.a
+
+# Executables
+**/*.out
+**/*.exe
+**/a.out
+
+# Documentation
+docs/
+
+# on mac
+**/.DS_Store
+**/.vscode
+**/.github
+**/.devcontainer
+
+# Project files
+*/btc
