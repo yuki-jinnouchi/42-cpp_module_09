@@ -41,7 +41,8 @@ double RPN::evaluate(const std::string& expression) {
       stack.pop();
       double tmp = performOperation(a, b, c);
       stack.push(tmp);
-      // std::cout << "Performing operation: " << a << " " << c << " " << b << " = " << tmp << std::endl;
+      // std::cout << "Performing operation: " << a << " " << c << " " << b << "
+      // = " << tmp << std::endl;
       continue;
     }
   }
