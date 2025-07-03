@@ -3,7 +3,7 @@
 #include <sstream>
 #include <stack>
 #include <stdexcept>
-#include <iostream>
+// #include <iostream>
 
 // Orthodox canonical form
 RPN::RPN() {}
