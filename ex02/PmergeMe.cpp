@@ -31,6 +31,7 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other) {
   return *this;
 }
 
+
 // Required methods for type int
 void PmergeMe::addData(int value) {
   _vectorData.push_back(value);
@@ -54,37 +55,11 @@ void PmergeMe::printData() const {
   std::cout << std::endl;
 }
 
+
 // CountableInt methods
 void PmergeMe::addCountableData(int value) {
   _countableVectorData.push_back(CountableInt(value));
   _countableDequeData.push_back(CountableInt(value));
-}
-
-void PmergeMe::sortCountableData() {
-  // printCountableData();
-
-  CountableInt::resetCount();
-  std::cout << "Init ";
-  printComparisonCounts();
-
-  sortCountableVector();
-  int vector_comparisons = CountableInt::getComparisonCount();
-
-  std::cout << "count std::vector : " << vector_comparisons << std::endl;
-
-  // CountableInt::resetCount();
-  // std::cout << "Init ";
-  // printComparisonCounts();
-
-  // sortCountableDeque();
-  // int deque_comparisons = CountableInt::getComparisonCount();
-
-  // std::cout << "count std::deque  : " << deque_comparisons << std::endl;
-
-  std::cout << "Is sorted data: " << (isSortedData() ? "Yes" : "No")
-            << std::endl;
-
-  // printCountableData();
 }
 
 void PmergeMe::sortCountableVector() {
@@ -138,6 +113,7 @@ bool PmergeMe::isSortedData() const {
 
   return true;
 }
+
 
 std::vector<size_t> PmergeMe::get_jacobsthal_insertion_order(size_t n) {
   std::vector<size_t> result = std::vector<size_t>();

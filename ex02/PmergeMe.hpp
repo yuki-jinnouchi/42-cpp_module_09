@@ -22,9 +22,10 @@ class PmergeMe {
 
   // CountableInt specific methods
   void addCountableData(int value);
-  void sortCountableData();
-  void printComparisonCounts() const;
+  void sortCountableVector();
+  void sortCountableDeque();
   void printCountableData() const;
+  void printComparisonCounts() const;
   bool isSortedData() const;
 
   private:
@@ -35,8 +36,6 @@ class PmergeMe {
   // CountableInt for testing
   std::vector<CountableInt> _countableVectorData;
   std::deque<CountableInt> _countableDequeData;
-  void sortCountableVector();
-  void sortCountableDeque();
 
   // Calculate insertion order using Jacobsthal sequence
   std::vector<size_t> get_jacobsthal_insertion_order(size_t n);

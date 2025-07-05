@@ -13,13 +13,13 @@ double time_diff_us(struct timespec start, struct timespec end) {
   // clock_getres(CLOCK_MONOTONIC, &res);
   // std::cout << "Resolution: " << res.tv_nsec << " ns" << std::endl;
 
-  double start_us = start.tv_sec * 1e6 + static_cast<double>(start.tv_nsec) / 1e3;
+  double start_us =
+      start.tv_sec * 1e6 + static_cast<double>(start.tv_nsec) / 1e3;
   double end_us = end.tv_sec * 1e6 + static_cast<double>(end.tv_nsec) / 1e3;
   return end_us - start_us;
 }
 
 void basic_main(PmergeMe &sorter, int input_size) {
-
   // Before output
   std::cout << "Before:  ";
   sorter.printData();
@@ -49,17 +49,38 @@ void basic_main(PmergeMe &sorter, int input_size) {
   std::cout << "Time to process a range of " << input_size
             << " elements with std::deque  : " << time_deque << " us"
             << std::endl;
-
 }
 
 void test_main(PmergeMe &sorter) {
   std::cout << "\n=== CountableInt Sort ===" << std::endl;
 
-  sorter.sortCountableData();
+  // printCountableData();
 
+  CountableInt::resetCount();
+  std::cout << "Init ";
+  sorter.printComparisonCounts();
+
+  sorter.sortCountableVector();
+  int vector_comparisons = CountableInt::getComparisonCount();
+
+  std::cout << "count std::vector : " << vector_comparisons << std::endl;
+
+  // CountableInt::resetCount();
+  // std::cout << "Init ";
+  // sorter.printComparisonCounts();
+
+  // sorter.sortCountableDeque();
+  // int deque_comparisons = CountableInt::getComparisonCount();
+
+  // std::cout << "count std::deque  : " << deque_comparisons << std::endl;
+
+  std::cout << "Is sorted data: " << (sorter.isSortedData() ? "Yes" : "No")
+            << std::endl;
+
+  // printCountableData();
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << " [positive integers]" << std::endl;
     return 1;
