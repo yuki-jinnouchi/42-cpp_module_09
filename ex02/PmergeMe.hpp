@@ -16,31 +16,34 @@ class PmergeMe {
 
   // Function to process the input data
   void addData(int value);
-  void sortData();
+  void sortVector();
+  void sortDeque();
   void printData() const;
 
-  // CountableInt版のメソッド
+  // CountableInt specific methods
   void addCountableData(int value);
   void sortCountableData();
   void printComparisonCounts() const;
   void printCountableData() const;
+  bool isSortedData() const;
 
- private:
+  private:
   // Member variables
-  std::vector<int> vector_data;
-  std::deque<int> deque_data;
+  std::vector<int> _vectorData;
+  std::deque<int> _dequeData;
 
-  // Function
-  void sortVector();
-  void sortDeque();
-
-  // CountableInt
-  std::vector<CountableInt> countable_vector_data;
-  std::deque<CountableInt> countable_deque_data;
-
-  // CountableInt
+  // CountableInt for testing
+  std::vector<CountableInt> _countableVectorData;
+  std::deque<CountableInt> _countableDequeData;
   void sortCountableVector();
   void sortCountableDeque();
+
+  // Calculate insertion order using Jacobsthal sequence
+  std::vector<size_t> get_jacobsthal_insertion_order(size_t n);
+
+  // Merge Insertion Sort template
+  template <typename Container>
+  Container mergeInsertionSort(const Container &container);
 };
 
 #endif  // PMERGEME_HPP
