@@ -1,19 +1,17 @@
 # Output File
 OUTPUT_DIR =	.
 NAME = 				$(OUTPUT_DIR)/PmergeMe
-TEST_NAME =		$(OUTPUT_DIR)/test_pmergeme
 
 # Directories
 INCLUDES_DIR =	.
 SOURCES_DIR =		.
 OBJECTS_DIR =		objs
+TEST_DIR =		tests
 
 # Files
 SOURCES =		PmergeMe.cpp CountableInt.cpp main.cpp
-TEST_SOURCES =	PmergeMe.cpp CountableInt.cpp test_main.cpp
 INCLUDES =	$(patsubst $(SOURCES_DIR)/%.cpp, $(INCLUDES_DIR)/%.hpp, $(SOURCES))
 OBJECTS =		$(SOURCES:%.cpp=$(OBJECTS_DIR)/%.o)
-TEST_OBJECTS =	$(TEST_SOURCES:%.cpp=$(OBJECTS_DIR)/%.o)
 
 # Compiler & Flags
 CXX =			c++
@@ -47,13 +45,6 @@ $(NAME): $(OBJECTS)
 	@chmod 755 $(NAME)
 	@echo "$(B_CYAN)READY:$(RESET) $(NAME) is ready to run"
 
-# Test version
-$(TEST_NAME): $(TEST_OBJECTS)
-	@printf "\r$(GREEN)[TEST]$(RESET) Linking $(CYAN)$(TEST_NAME)$(RESET)\033[K\n"
-	@$(CXX) $(CPPFLAGS) $^ -o $@
-	@echo "$(B_GREEN)SUCCESS:$(RESET) $(TEST_NAME) linked successfully"
-	@chmod 755 $(TEST_NAME)
-
 # Compile Targets
 $(OBJECTS_DIR)/%.o: $(SOURCES_DIR)/%.cpp | $(OBJECTS_DIR)
 	@printf "\r$(GREEN)[%2d/%2d]$(RESET) Compiling $(CYAN)%s$(RESET)\033[K" \
@@ -82,25 +73,14 @@ update:	fclean
 .PHONY = all clean fclean re update test performance correctness
 
 #-----------------------------------------------
-# Test Variables
-TEST_DIR =		./tests
-PERF_SHELL =	$(TEST_DIR)/performance_test.sh
-CORR_SHELL =	$(TEST_DIR)/correctness_test.sh
+# Test Targets
 
-test: $(NAME)
-	@echo "$(B_BLUE)Running PmergeMe tests...$(RESET)"
-	@bash $(CORR_SHELL)
+TEST_SIZE = 1000
 
-performance: $(NAME)
-	@echo "$(B_BLUE)Running performance tests...$(RESET)"
-	@bash $(PERF_SHELL)
-
-correctness: $(NAME)
-	@echo "$(B_BLUE)Running correctness tests...$(RESET)"
-	@bash $(CORR_SHELL)
-
-test_build: $(TEST_NAME)
-	@echo "$(B_CYAN)Test version built successfully$(RESET)"
+test:	$(NAME)
+	@$(NAME) $$(jot -r $(TEST_SIZE) 1 $(TEST_SIZE) | tr '\n' ' ')
+	@echo ""
+	@./tests/maxComp.sh $(TEST_SIZE)
 
 #-----------------------------------------------
 debug:

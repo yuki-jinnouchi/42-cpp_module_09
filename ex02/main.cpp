@@ -51,8 +51,9 @@ void basic_main(PmergeMe &sorter, int input_size) {
             << std::endl;
 }
 
-void test_main(PmergeMe &sorter) {
+void test_main(PmergeMe &sorter, int input_size) {
   std::cout << "\n=== CountableInt Sort ===" << std::endl;
+  std::cout << "Input size: " << input_size << std::endl;
 
   // printCountableData();
 
@@ -87,7 +88,7 @@ int main(int argc, char *argv[]) {
   }
 
   PmergeMe sorter;
-  // int input_size = argc - 1;
+  int input_size = argc - 1;
 
   // Parse arguments and add data
   for (int i = 1; i < argc; ++i) {
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]) {
   }
 
   // basic_main(sorter, input_size);
-  test_main(sorter);
+  test_main(sorter, input_size);
 
   return 0;
 }

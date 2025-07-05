@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <utility>  // std::pair
 #include <vector>
 
 // Orthodox Canonical Form
@@ -31,7 +30,6 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other) {
   return *this;
 }
 
-
 // Required methods for type int
 void PmergeMe::addData(int value) {
   _vectorData.push_back(value);
@@ -54,7 +52,6 @@ void PmergeMe::printData() const {
   }
   std::cout << std::endl;
 }
-
 
 // CountableInt methods
 void PmergeMe::addCountableData(int value) {
@@ -114,8 +111,7 @@ bool PmergeMe::isSortedData() const {
   return true;
 }
 
-
-std::vector<size_t> PmergeMe::get_jacobsthal_insertion_order(size_t n) {
+std::vector<size_t> PmergeMe::getJInsertionOrder(size_t n) {
   std::vector<size_t> result = std::vector<size_t>();
   if (n == 0) return result;
 
@@ -175,8 +171,7 @@ Container PmergeMe::mergeInsertionSort(const Container &container) {
 
   Container sorted = mergeInsertionSort(larger_values);
 
-  std::vector<size_t> insert_order =
-      get_jacobsthal_insertion_order(pairs.size());
+  std::vector<size_t> insert_order = getJInsertionOrder(pairs.size());
 
   for (size_t j = 0; j < insert_order.size(); ++j) {
     size_t idx = insert_order[j];

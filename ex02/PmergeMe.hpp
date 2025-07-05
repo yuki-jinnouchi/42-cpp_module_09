@@ -28,7 +28,7 @@ class PmergeMe {
   void printComparisonCounts() const;
   bool isSortedData() const;
 
-  private:
+ private:
   // Member variables
   std::vector<int> _vectorData;
   std::deque<int> _dequeData;
@@ -38,7 +38,7 @@ class PmergeMe {
   std::deque<CountableInt> _countableDequeData;
 
   // Calculate insertion order using Jacobsthal sequence
-  std::vector<size_t> get_jacobsthal_insertion_order(size_t n);
+  std::vector<size_t> getJInsertionOrder(size_t n);
 
   // Merge Insertion Sort template
   template <typename Container>
