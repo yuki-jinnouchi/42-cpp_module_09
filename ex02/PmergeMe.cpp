@@ -4,6 +4,9 @@
 #include <iostream>
 #include <vector>
 
+#include "CountableInt.hpp"
+#include "Jacobsthal.hpp"
+
 // Orthodox Canonical Form
 PmergeMe::PmergeMe() {
   _vectorData = std::vector<int>();
@@ -37,12 +40,12 @@ void PmergeMe::addData(int value) {
 }
 
 void PmergeMe::sortVector() {
-  _vectorData = mergeInsertionSort(_vectorData);
+  mergeInsertionSort(_vectorData.begin(), _vectorData.end());
 }
 
-void PmergeMe::sortDeque() {
-  _dequeData = mergeInsertionSort(_dequeData);
-}
+// void PmergeMe::sortDeque() {
+//   _dequeData = mergeInsertionSort(_dequeData);
+// }
 
 void PmergeMe::printData() const {
   for (std::vector<int>::const_iterator it = _vectorData.begin();
@@ -60,12 +63,12 @@ void PmergeMe::addCountableData(int value) {
 }
 
 void PmergeMe::sortCountableVector() {
-  _countableVectorData = mergeInsertionSort(_countableVectorData);
+  mergeInsertionSort(_countableVectorData.begin(), _countableVectorData.end());
 }
 
-void PmergeMe::sortCountableDeque() {
-  _countableDequeData = mergeInsertionSort(_countableDequeData);
-}
+// void PmergeMe::sortCountableDeque() {
+//   _countableDequeData = mergeInsertionSort(_countableDequeData);
+// }
 
 void PmergeMe::printComparisonCounts() const {
   std::cout << "count        : " << CountableInt::getComparisonCount()
@@ -111,84 +114,129 @@ bool PmergeMe::isSortedData() const {
   return true;
 }
 
-std::vector<size_t> PmergeMe::getJInsertionOrder(size_t n) {
-  std::vector<size_t> result = std::vector<size_t>();
-  if (n == 0) return result;
+template <typename iterator>
+void PmergeMe::mergeInsertionSort(iterator first, iterator last) {
+  typedef typename std::iterator_traits<iterator>::value_type T;
 
-  result.push_back(0);
-  size_t j0 = 1;
-  size_t j1 = 0;
-  while (true) {
-    size_t j = j0 + 2 * j1;
-    if (j >= n) break;
-    result.push_back(j);
-    j1 = j0;
-    j0 = j;
-  }
-  // 残りのインデックスを補完
-  for (size_t i = 0; i < n; ++i) {
-    if (std::find(result.begin(), result.end(), i) == result.end())
-      result.push_back(i);
-  }
-  return result;
-}
+  // Return if the range is empty or has one element
+  size_t n = std::distance(first, last);
+  if (n <= 1) return;
+  // if (n < THRESHOLD) {
+  //     insertionSort(first, last);
+  //     return;
+  // }
 
-template <typename Container>
-Container PmergeMe::mergeInsertionSort(const Container &container) {
-  typedef typename Container::value_type T;
-
-  if (container.size() <= 1) return container;
-
-  // make pairs
-  std::vector<std::pair<T, T> > pairs;
-  typename Container::const_iterator it = container.begin();
-  bool has_orphan = false;
-  T orphan;
-
-  while (it != container.end()) {
-    T a = *it;
-    ++it;
-    if (it == container.end()) {
-      // 奇数個の場合、最後の要素をorphanとして保存
-      has_orphan = true;
-      orphan = a;
-      break;
-    }
-    T b = *it;
-    ++it;
-
+  // Make pairs
+  std::vector<std::pair<T, T> > pairs = std::vector<std::pair<T, T> >();
+  iterator it = first;
+  while (std::distance(it, last) >= 2) {
+    T a = *it++;
+    T b = *it++;
     if (a < b)
       pairs.push_back(std::make_pair(b, a));
     else
       pairs.push_back(std::make_pair(a, b));
   }
+  bool hasOrphan = (it != last);
+  if (hasOrphan) pairs.push_back(std::make_pair(T(), *it));
 
-  // 大きい値でソート
-  Container larger_values;
-  for (size_t j = 0; j < pairs.size(); ++j) {
-    larger_values.push_back(pairs[j].first);
-  }
+  // Make winners and sort them
+  std::vector<T> winners = std::vector<T>();
+  winners.reserve(pairs.size());
+  size_t winners_size = pairs.size();
+  if (hasOrphan) winners_size--;
+  for (size_t i = 0; i < winners_size; i++) winners.push_back(pairs[i].first);
 
-  Container sorted = mergeInsertionSort(larger_values);
+  // std::cout << "Winners before: " << std::endl;
+  // for (size_t i = 0; i < winners.size(); i++) {
+  //   std::cout << winners[i] << " ";
+  // }
+  // std::cout << std::endl;
 
-  std::vector<size_t> insert_order = getJInsertionOrder(pairs.size());
+  mergeInsertionSort(winners.begin(), winners.end());
 
-  for (size_t j = 0; j < insert_order.size(); ++j) {
-    size_t idx = insert_order[j];
-    if (idx < pairs.size()) {
-      T small = pairs[idx].second;
-      typename Container::iterator pos =
-          std::lower_bound(sorted.begin(), sorted.end(), small);
-      sorted.insert(pos, small);
+  // std::cout << "Winners after: " << std::endl;
+  // for (size_t i = 0; i < winners.size(); i++) {
+  //   std::cout << winners[i] << " ";
+  // }
+  // std::cout << std::endl;
+
+  // Put winners back to the original range
+  iterator originalIt = first;
+  typename std::vector<T>::iterator winnerIt;
+  for (winnerIt = winners.begin(); winnerIt != winners.end();
+       winnerIt++, originalIt++)
+    *originalIt = *winnerIt;
+
+  // std::cout << "After putting winners back: " << std::endl;
+  // for (iterator it = first; it != last; it++) {
+  //   std::cout << *it << " ";
+  // }
+  // std::cout << std::endl;
+
+  // Put losers back to the original range
+  std::vector<size_t> order = Jacobsthal::getInsertionOrder(pairs.size());
+
+  // std::cout << "Losers order:" << std::endl;
+  // for (size_t i = 0; i < order.size(); i++) {
+  //   std::cout << order[i] << " ";
+  // }
+  // std::cout << std::endl;
+
+  std::size_t inserted_count = 0;
+  for (size_t i = 0; i < order.size(); i++) {
+    size_t loser_index = order[i];
+    T loser = pairs[loser_index].second;
+
+    iterator search_start = first;
+    iterator search_end = first + loser_index + inserted_count;
+
+    iterator pos = std::lower_bound(search_start, search_end, loser);
+
+    // iterator pos = search_start;
+    // while(pos != search_end && *pos < loser) {
+    //   pos++;
+    // }
+    // iterator pos = std::lower_bound(search_start, search_end, loser);
+
+    
+    // std::cout << "Inserting loser: " << loser << " - "
+    //   << "start: " << *search_start << " end: " << *search_end << std::endl;
+    // for (iterator it = first; it != originalIt; it++) {
+    //   std::cout << *it << " ";
+    // }
+    // std::cout << std::endl;
+    // for (iterator it = first; it != last; it++) {
+    //   std::cout << *it << " ";
+    // }
+    // std::cout << std::endl;
+
+
+    for (iterator shift_it = originalIt; shift_it != pos; shift_it--) {
+      *shift_it = *(shift_it - 1);
     }
+    *pos = loser;
+    originalIt++;
+    inserted_count++;
+
+
+    // std::cout << "Inserted loser: " << loser << " - "
+    //   << "start: " << *search_start << " end: " << *search_end << std::endl;
+    // for (iterator it = first; it != originalIt; it++) {
+    //   std::cout << *it << " ";
+    // }
+    // std::cout << std::endl;
+    // for (iterator it = first; it != last; it++) {
+    //   std::cout << *it << " ";
+    // }
+    // std::cout << std::endl;
+    // std::cout << std::endl;
+
   }
 
-  // orphanが存在する場合は最後に挿入
-  if (has_orphan) {
-    typename Container::iterator pos =
-        std::lower_bound(sorted.begin(), sorted.end(), orphan);
-    sorted.insert(pos, orphan);
-  }
-
-  return sorted;
+  // std::cout << "After putting losers back: " << std::endl;
+  // for (iterator it = first; it != last; it++) {
+  //   std::cout << *it << " ";
+  // }
+  // std::cout << std::endl;
 }

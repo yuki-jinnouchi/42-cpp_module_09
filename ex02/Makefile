@@ -9,7 +9,7 @@ OBJECTS_DIR =		objs
 TEST_DIR =		tests
 
 # Files
-SOURCES =		PmergeMe.cpp CountableInt.cpp main.cpp
+SOURCES =		PmergeMe.cpp Jacobsthal.cpp CountableInt.cpp main.cpp
 INCLUDES =	$(patsubst $(SOURCES_DIR)/%.cpp, $(INCLUDES_DIR)/%.hpp, $(SOURCES))
 OBJECTS =		$(SOURCES:%.cpp=$(OBJECTS_DIR)/%.o)
 
@@ -75,10 +75,17 @@ update:	fclean
 #-----------------------------------------------
 # Test Targets
 
-TEST_SIZE = 1000
+TEST_SIZE = 10
+
+ifeq ($(shell uname), Linux)
+	TEST_COMMAND = shuf -i 1-$(TEST_SIZE) -n $(TEST_SIZE) | tr "\n" " "
+else ifeq ($(shell uname), Darwin)
+	TEST_COMMAND = jot -r $(TEST_SIZE) 1 $(TEST_SIZE) | tr '\n' ' '
+endif
 
 test:	$(NAME)
-	@$(NAME) $$(jot -r $(TEST_SIZE) 1 $(TEST_SIZE) | tr '\n' ' ')
+	@echo $$( $(TEST_COMMAND) )
+	@$(NAME) $$( $(TEST_COMMAND) )
 	@echo ""
 	@./tests/maxComp.sh $(TEST_SIZE)
 
