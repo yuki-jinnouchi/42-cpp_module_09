@@ -21,4 +21,4 @@ class RPN {
   static double performOperation(double a, double b, char c);
 };
 
-#endif  // RPN_HPP
+#endif // RPN_HPP
