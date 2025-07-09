@@ -102,9 +102,23 @@ void PmergeMe::sortCountableVector() {
   }
 }
 
-// void PmergeMe::sortCountableDeque() {
-//   _countableDequeData = mergeInsertionSort(_countableDequeData);
-// }
+void PmergeMe::sortCountableDeque() {
+  std::deque<IndexedValue<CountableInt> > pairs =
+      std::deque<IndexedValue<CountableInt> >();
+
+  for (size_t i = 0; i < _dequeData.size(); i++) {
+    IndexedValue<CountableInt> pair(_dequeData[i], 0);
+    pairs.push_back(pair);
+  }
+
+  // printVector(pairs, "Before sorting: ");
+
+  mergeInsertionSortDeque(pairs.begin(), pairs.end());
+
+  for (size_t i = 0; i < pairs.size(); i++) {
+    _countableDequeData[i] = pairs[i]._value;
+  }
+}
 
 void PmergeMe::printComparisonCounts() const {
   std::cout << "count : " << CountableInt::getComparisonCount() << std::endl;
@@ -120,14 +134,14 @@ void PmergeMe::printCountableData() const {
   }
   std::cout << std::endl;
 
-  // std::cout << "Countable Deque data: ";
-  // for (std::deque<CountableInt>::const_iterator it =
-  //          _countableDequeData.begin();
-  //      it != _countableDequeData.end(); ++it) {
-  //   CountableInt item = *it;
-  //   std::cout << item.getValue() << " ";
-  // }
-  // std::cout << std::endl;
+  std::cout << "Countable Deque data: ";
+  for (std::deque<CountableInt>::const_iterator it =
+           _countableDequeData.begin();
+       it != _countableDequeData.end(); ++it) {
+    CountableInt item = *it;
+    std::cout << item.getValue() << " ";
+  }
+  std::cout << std::endl;
 }
 
 bool PmergeMe::isSortedData() const {
@@ -142,9 +156,14 @@ bool PmergeMe::isSortedData() const {
   }
 
   // Check if deque is sorted
-  // for (size_t i = 1; i < _dequeData.size(); ++i) {
-  //   if (_dequeData[i] < _dequeData[i - 1]) return false;
-  // }
+  temp = 0;
+  for (std::deque<CountableInt>::const_iterator it =
+           _countableDequeData.begin();
+       it != _countableDequeData.end(); it++) {
+    CountableInt item = *it;
+    if (temp > item.getValue()) return false;
+    temp = item.getValue();
+  }
 
   return true;
 }

@@ -70,14 +70,14 @@ void test_main(PmergeMe &sorter, int input_size) {
 
   std::cout << "count std::vector : " << vector_comparisons << std::endl;
 
-  // CountableInt::resetCount();
-  // std::cout << "Init ";
-  // sorter.printComparisonCounts();
+  CountableInt::resetCount();
+  std::cout << "Init ";
+  sorter.printComparisonCounts();
 
-  // sorter.sortCountableDeque();
-  // int deque_comparisons = CountableInt::getComparisonCount();
+  sorter.sortCountableDeque();
+  int deque_comparisons = CountableInt::getComparisonCount();
 
-  // std::cout << "count std::deque  : " << deque_comparisons << std::endl;
+  std::cout << "count std::deque  : " << deque_comparisons << std::endl;
 
   std::cout << "Is sorted data: " << (sorter.isSortedData() ? "Yes" : "No")
             << std::endl;

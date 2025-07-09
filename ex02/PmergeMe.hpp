@@ -25,7 +25,7 @@ class PmergeMe {
   // CountableInt specific methods
   void addCountableData(int value);
   void sortCountableVector();
-  // void sortCountableDeque();
+  void sortCountableDeque();
   void printCountableData() const;
   void printComparisonCounts() const;
   bool isSortedData() const;
@@ -39,14 +39,7 @@ class PmergeMe {
   std::vector<CountableInt> _countableVectorData;
   std::deque<CountableInt> _countableDequeData;
 
-  // Merge Insertion Sort template
-  // template <typename Container>
-  // Container mergeInsertionSort(const Container &container);
-  // template <typename T>
-  // std::vector<T> mergeInsertionSort(const std::vector<T> &container);
-  // template <typename T>
-  // std::deque<T> mergeInsertionSort(const std::deque<T> &container);
-
+  // Merge Insertion Sort for vector
   template <typename iterator>
   void mergeInsertionSortVec(iterator first, iterator last);
 
@@ -60,6 +53,7 @@ class PmergeMe {
   template <typename T>
   void printVector(std::vector<T> &vec, std::string explain) const;
 
+  // Merge Insertion Sort for deque
   template <typename iterator>
   void mergeInsertionSortDeque(iterator first, iterator last);
 
