@@ -93,6 +93,8 @@ mytest:	$(NAME)
 	@echo ""
 	@./tests/maxComp.sh $(TEST_SIZE)
 
+# https://discord.com/channels/691903146909237289/1081112604082176030/1298675926288302255
+
 #-----------------------------------------------
 debug:
 	@echo "$(B_BLUE)Debug Information:$(RESET)"
