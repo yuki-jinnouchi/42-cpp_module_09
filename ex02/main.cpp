@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <cstddef>
 
 #include "PmergeMe.hpp"
 #include "Jacobsthal.hpp"
@@ -37,7 +38,7 @@ void basic_main(PmergeMe &sorter, int input_size) {
   double time_vector = time_diff_us(startVector, endVector);
 
   clock_gettime(CLOCK_MONOTONIC, &startDeque);
-  // sorter.sortDeque();
+  sorter.sortDeque();
   clock_gettime(CLOCK_MONOTONIC, &endDeque);
   double time_deque = time_diff_us(startDeque, endDeque);
 
@@ -124,7 +125,7 @@ int main(int argc, char *argv[]) {
   for (int i = 1; i < argc; ++i) {
     std::istringstream iss(argv[i]);
     int value;
-    if (!(iss >> value) || value < 0) {
+    if (!(iss >> value) || value <= 0) {
       std::cerr << "Error" << std::endl;
       return 1;
     }
@@ -132,8 +133,8 @@ int main(int argc, char *argv[]) {
     sorter.addCountableData(value);
   }
 
-  // basic_main(sorter, input_size);
-  test_main(sorter, input_size);
+  basic_main(sorter, input_size);
+  // test_main(sorter, input_size);
   // test_Jacobstal();
 
   return 0;

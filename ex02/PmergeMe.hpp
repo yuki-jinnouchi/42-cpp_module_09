@@ -2,6 +2,8 @@
 #define PMERGEME_HPP
 
 #include <deque>
+#include <iostream>
+#include <string>
 #include <vector>
 
 #include "CountableInt.hpp"
@@ -17,7 +19,7 @@ class PmergeMe {
   // Function to process the input data
   void addData(int value);
   void sortVector();
-  // void sortDeque();
+  void sortDeque();
   void printData() const;
 
   // CountableInt specific methods
@@ -28,7 +30,7 @@ class PmergeMe {
   void printComparisonCounts() const;
   bool isSortedData() const;
 
-  private:
+ private:
   // Member variables
   std::vector<int> _vectorData;
   std::deque<int> _dequeData;
@@ -44,8 +46,32 @@ class PmergeMe {
   // std::vector<T> mergeInsertionSort(const std::vector<T> &container);
   // template <typename T>
   // std::deque<T> mergeInsertionSort(const std::deque<T> &container);
-  template<typename iterator>
-  void mergeInsertionSort(iterator first, iterator last);
+
+  template <typename iterator>
+  void mergeInsertionSortVec(iterator first, iterator last);
+
+  template <typename T>
+  std::pair<std::vector<T>, std::vector<T> > extract(typename std::vector<T>::iterator first,
+                                        typename std::vector<T>::iterator last);
+  template <typename T>
+  void popIndexes(std::vector<T> &vec);
+  template <typename T>
+  std::vector<T> mergeVectors(std::vector<T> &winners, std::vector<T> &losers);
+  template <typename T>
+  void printVector(std::vector<T> &vec, std::string explain) const;
+
+  template <typename iterator>
+  void mergeInsertionSortDeque(iterator first, iterator last);
+
+  template <typename T>
+  std::pair<std::deque<T>, std::deque<T> > extract(typename std::deque<T>::iterator first,
+                                        typename std::deque<T>::iterator last);
+  template <typename T>
+  void popIndexes(std::deque<T> &vec);
+  template <typename T>
+  std::deque<T> mergeVectors(std::deque<T> &winners, std::deque<T> &losers);
+  template <typename T>
+  void printVector(std::deque<T> &vec, std::string explain) const;
 
 };
 

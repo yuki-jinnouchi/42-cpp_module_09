@@ -1,7 +1,7 @@
 #ifndef COUNTABLEINT_HPP
 #define COUNTABLEINT_HPP
 
-class CountableInt {
+class CountableInt{
  public:
   // static variable to count comparisons
   static int _comparison_count;

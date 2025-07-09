@@ -1,5 +1,7 @@
 #include "CountableInt.hpp"
 
+#include <iostream>
+
 // Static member initialization
 int CountableInt::_comparison_count = 0;
 
@@ -22,31 +24,37 @@ CountableInt &CountableInt::operator=(const CountableInt &other) {
 // operator overloading
 bool CountableInt::operator<(const CountableInt &other) const {
   _comparison_count++;
+  // std::cout << "< ";
   return _value < other._value;
 }
 
 bool CountableInt::operator>(const CountableInt &other) const {
   _comparison_count++;
+  // std::cout << "> ";
   return _value > other._value;
 }
 
 bool CountableInt::operator<=(const CountableInt &other) const {
   _comparison_count++;
+  // std::cout << "<= ";
   return _value <= other._value;
 }
 
 bool CountableInt::operator>=(const CountableInt &other) const {
   _comparison_count++;
+  // std::cout << ">= ";
   return _value >= other._value;
 }
 
 bool CountableInt::operator==(const CountableInt &other) const {
   _comparison_count++;
+  // std::cout << "== ";
   return _value == other._value;
 }
 
 bool CountableInt::operator!=(const CountableInt &other) const {
   _comparison_count++;
+  // std::cout << "!= ";
   return _value != other._value;
 }
 

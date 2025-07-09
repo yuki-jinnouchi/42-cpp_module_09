@@ -1,10 +1,15 @@
 #include "PmergeMe.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <deque>
 #include <iostream>
+// #include <map>
 #include <vector>
+// #include <unordered_map>
 
 #include "CountableInt.hpp"
+#include "IndexedValue.hpp"
 #include "Jacobsthal.hpp"
 
 // Orthodox Canonical Form
@@ -40,12 +45,29 @@ void PmergeMe::addData(int value) {
 }
 
 void PmergeMe::sortVector() {
-  mergeInsertionSort(_vectorData.begin(), _vectorData.end());
+  std::vector<IndexedValue<int> > pairs = std::vector<IndexedValue<int> >();
+  for (size_t i = 0; i < _vectorData.size(); i++) {
+    IndexedValue<int> pair(_vectorData[i], 0);
+    pairs.push_back(pair);
+  }
+  mergeInsertionSortVec(pairs.begin(), pairs.end());
+  for (size_t i = 0; i < pairs.size(); i++) {
+    _vectorData[i] = pairs[i]._value;
+  }
 }
 
-// void PmergeMe::sortDeque() {
-//   _dequeData = mergeInsertionSort(_dequeData);
-// }
+void PmergeMe::sortDeque() {
+  std::deque<IndexedValue<int> > pairs =
+      std::deque<IndexedValue<int> >();
+  for (size_t i = 0; i < _dequeData.size(); i++) {
+    IndexedValue<int> pair(_dequeData[i], 0);
+    pairs.push_back(pair);
+  }
+  mergeInsertionSortDeque(pairs.begin(), pairs.end());
+  for (size_t i = 0; i < pairs.size(); i++) {
+    _dequeData[i] = pairs[i]._value;
+  }
+}
 
 void PmergeMe::printData() const {
   for (std::vector<int>::const_iterator it = _vectorData.begin();
@@ -63,7 +85,21 @@ void PmergeMe::addCountableData(int value) {
 }
 
 void PmergeMe::sortCountableVector() {
-  mergeInsertionSort(_countableVectorData.begin(), _countableVectorData.end());
+  std::vector<IndexedValue<CountableInt> > pairs =
+      std::vector<IndexedValue<CountableInt> >();
+
+  for (size_t i = 0; i < _vectorData.size(); i++) {
+    IndexedValue<CountableInt> pair(_vectorData[i], 0);
+    pairs.push_back(pair);
+  }
+
+  // printVector(pairs, "Before sorting: ");
+
+  mergeInsertionSortVec(pairs.begin(), pairs.end());
+
+  for (size_t i = 0; i < pairs.size(); i++) {
+    _countableVectorData[i] = pairs[i]._value;
+  }
 }
 
 // void PmergeMe::sortCountableDeque() {
@@ -71,8 +107,7 @@ void PmergeMe::sortCountableVector() {
 // }
 
 void PmergeMe::printComparisonCounts() const {
-  std::cout << "count        : " << CountableInt::getComparisonCount()
-            << std::endl;
+  std::cout << "count : " << CountableInt::getComparisonCount() << std::endl;
 }
 
 void PmergeMe::printCountableData() const {
@@ -106,7 +141,7 @@ bool PmergeMe::isSortedData() const {
     temp = item.getValue();
   }
 
-  // // Check if deque is sorted
+  // Check if deque is sorted
   // for (size_t i = 1; i < _dequeData.size(); ++i) {
   //   if (_dequeData[i] < _dequeData[i - 1]) return false;
   // }
@@ -114,129 +149,283 @@ bool PmergeMe::isSortedData() const {
   return true;
 }
 
-template <typename iterator>
-void PmergeMe::mergeInsertionSort(iterator first, iterator last) {
-  typedef typename std::iterator_traits<iterator>::value_type T;
+// Vector
+template <typename T>
+std::pair<std::vector<T>, std::vector<T> > PmergeMe::extract(
+    typename std::vector<T>::iterator first,
+    typename std::vector<T>::iterator last) {
+  typedef typename std::vector<T>::iterator iterator;
 
-  // Return if the range is empty or has one element
-  size_t n = std::distance(first, last);
-  if (n <= 1) return;
-  // if (n < THRESHOLD) {
-  //     insertionSort(first, last);
-  //     return;
-  // }
+  std::vector<T> winners;
+  std::vector<T> losers;
 
-  // Make pairs
-  std::vector<std::pair<T, T> > pairs = std::vector<std::pair<T, T> >();
+  size_t index = 0;
   iterator it = first;
   while (std::distance(it, last) >= 2) {
     T a = *it++;
+    a.pushIndex(index);
     T b = *it++;
-    if (a < b)
-      pairs.push_back(std::make_pair(b, a));
-    else
-      pairs.push_back(std::make_pair(a, b));
-  }
-  bool hasOrphan = (it != last);
-  if (hasOrphan) pairs.push_back(std::make_pair(T(), *it));
-
-  // Make winners and sort them
-  std::vector<T> winners = std::vector<T>();
-  winners.reserve(pairs.size());
-  size_t winners_size = pairs.size();
-  if (hasOrphan) winners_size--;
-  for (size_t i = 0; i < winners_size; i++) winners.push_back(pairs[i].first);
-
-  // std::cout << "Winners before: " << std::endl;
-  // for (size_t i = 0; i < winners.size(); i++) {
-  //   std::cout << winners[i] << " ";
-  // }
-  // std::cout << std::endl;
-
-  mergeInsertionSort(winners.begin(), winners.end());
-
-  // std::cout << "Winners after: " << std::endl;
-  // for (size_t i = 0; i < winners.size(); i++) {
-  //   std::cout << winners[i] << " ";
-  // }
-  // std::cout << std::endl;
-
-  // Put winners back to the original range
-  iterator originalIt = first;
-  typename std::vector<T>::iterator winnerIt;
-  for (winnerIt = winners.begin(); winnerIt != winners.end();
-       winnerIt++, originalIt++)
-    *originalIt = *winnerIt;
-
-  // std::cout << "After putting winners back: " << std::endl;
-  // for (iterator it = first; it != last; it++) {
-  //   std::cout << *it << " ";
-  // }
-  // std::cout << std::endl;
-
-  // Put losers back to the original range
-  std::vector<size_t> order = Jacobsthal::getInsertionOrder(pairs.size());
-
-  // std::cout << "Losers order:" << std::endl;
-  // for (size_t i = 0; i < order.size(); i++) {
-  //   std::cout << order[i] << " ";
-  // }
-  // std::cout << std::endl;
-
-  std::size_t inserted_count = 0;
-  for (size_t i = 0; i < order.size(); i++) {
-    size_t loser_index = order[i];
-    T loser = pairs[loser_index].second;
-
-    iterator search_start = first;
-    iterator search_end = first + loser_index + inserted_count;
-
-    iterator pos = std::lower_bound(search_start, search_end, loser);
-
-    // iterator pos = search_start;
-    // while(pos != search_end && *pos < loser) {
-    //   pos++;
-    // }
-    // iterator pos = std::lower_bound(search_start, search_end, loser);
-
-    
-    // std::cout << "Inserting loser: " << loser << " - "
-    //   << "start: " << *search_start << " end: " << *search_end << std::endl;
-    // for (iterator it = first; it != originalIt; it++) {
-    //   std::cout << *it << " ";
-    // }
-    // std::cout << std::endl;
-    // for (iterator it = first; it != last; it++) {
-    //   std::cout << *it << " ";
-    // }
-    // std::cout << std::endl;
-
-
-    for (iterator shift_it = originalIt; shift_it != pos; shift_it--) {
-      *shift_it = *(shift_it - 1);
+    b.pushIndex(index);
+    if (a > b) {
+      winners.push_back(a);
+      losers.push_back(b);
+    } else {
+      winners.push_back(b);
+      losers.push_back(a);
     }
-    *pos = loser;
-    originalIt++;
-    inserted_count++;
-
-
-    // std::cout << "Inserted loser: " << loser << " - "
-    //   << "start: " << *search_start << " end: " << *search_end << std::endl;
-    // for (iterator it = first; it != originalIt; it++) {
-    //   std::cout << *it << " ";
-    // }
-    // std::cout << std::endl;
-    // for (iterator it = first; it != last; it++) {
-    //   std::cout << *it << " ";
-    // }
-    // std::cout << std::endl;
-    // std::cout << std::endl;
-
+    index++;
   }
 
-  // std::cout << "After putting losers back: " << std::endl;
-  // for (iterator it = first; it != last; it++) {
-  //   std::cout << *it << " ";
-  // }
-  // std::cout << std::endl;
+  bool hasOrphan = (it != last);
+  if (hasOrphan) {
+    T orphan = *it;
+    orphan.pushIndex(index);
+    losers.push_back(orphan);
+  }
+
+  std::pair<std::vector<T>, std::vector<T> > pairs;
+  pairs.first = winners;
+  pairs.second = losers;
+  return pairs;
 }
+
+template <typename T>
+void PmergeMe::popIndexes(std::vector<T> &vec) {
+  for (typename std::vector<T>::iterator it = vec.begin(); it != vec.end();
+       it++) {
+    T &item = *it;
+    item.popIndex();
+  }
+}
+
+template <typename T>
+std::vector<T> PmergeMe::mergeVectors(std::vector<T> &winners,
+                                      std::vector<T> &losers) {
+  typedef typename std::vector<T>::iterator iterator;
+
+  std::vector<T> merged;
+
+  merged.reserve(winners.size() + losers.size());
+  for (size_t i = 0; i < winners.size(); i++) {
+    merged.push_back(winners[i]);
+  }
+
+  // printVector(merged, "Merge_before:");
+
+  std::vector<size_t> schedule;
+  schedule = Jacobsthal::getInsertionOrder(losers.size());
+
+  // printVector(schedule, "Schedule:");
+
+  size_t inserted_count = 0;
+  for (size_t i = 0; i < schedule.size(); i++) {
+    T loser;
+    size_t schedule_index = schedule[i];
+
+    if (winners.size() != losers.size() && schedule_index == winners.size()) {
+      loser = losers[schedule_index];
+    } else {
+      size_t common_index = winners[schedule_index].getIndex();
+      size_t loser_index;
+      for (loser_index = 0; loser_index < losers.size(); loser_index++) {
+        if (losers[loser_index].getIndex() == common_index) {
+          loser = losers[loser_index];
+          break;
+        }
+      }
+    }
+
+    iterator search_start = merged.begin();
+    iterator search_end = merged.begin() + schedule_index + inserted_count;
+    iterator pos = std::lower_bound(search_start, search_end, loser);
+    if (pos == merged.end()) {
+      merged.push_back(loser);
+    } else {
+      merged.insert(pos, loser);
+    }
+    inserted_count++;
+  }
+  return merged;
+}
+
+template <typename T>
+void PmergeMe::printVector(std::vector<T> &vec, std::string explain) const {
+  // show text with padding
+  std::cout << explain << std::string(18 - explain.size(), ' ');
+  for (typename std::vector<T>::iterator it = vec.begin(); it != vec.end();
+       ++it) {
+    std::cout << *it << " ";
+  }
+}
+
+template <typename iterator>
+void PmergeMe::mergeInsertionSortVec(iterator first, iterator last) {
+  // Return if the range is empty or has one element
+  size_t n = std::distance(first, last);
+  if (n <= 1) return;
+
+  typedef typename std::iterator_traits<iterator>::value_type T;
+
+  std::pair<std::vector<T>, std::vector<T> > pairs = extract<T>(first, last);
+
+  std::vector<T> winners = pairs.first;
+  std::vector<T> winners_copy = winners;  // for debug
+  std::vector<T> losers = pairs.second;
+
+  mergeInsertionSortVec(winners.begin(), winners.end());
+
+  std::vector<T> mergerd = mergeVectors(winners, losers);
+
+  // printVector(winners_copy, std::string("Winners_before:"));
+  // printVector(winners, std::string("Winners_after:"));
+  // printVector(losers, std::string("Losers:"));
+  // printVector(mergerd, "Merged:");
+
+  popIndexes(mergerd);
+
+  // std::cout << std::endl;
+
+  std::copy(mergerd.begin(), mergerd.end(), first);
+}
+
+
+// Deque
+template <typename T>
+std::pair<std::deque<T>, std::deque<T> > PmergeMe::extract(
+    typename std::deque<T>::iterator first,
+    typename std::deque<T>::iterator last) {
+  typedef typename std::deque<T>::iterator iterator;
+
+  std::deque<T> winners;
+  std::deque<T> losers;
+
+  size_t index = 0;
+  iterator it = first;
+  while (std::distance(it, last) >= 2) {
+    T a = *it++;
+    a.pushIndex(index);
+    T b = *it++;
+    b.pushIndex(index);
+    if (a > b) {
+      winners.push_back(a);
+      losers.push_back(b);
+    } else {
+      winners.push_back(b);
+      losers.push_back(a);
+    }
+    index++;
+  }
+
+  bool hasOrphan = (it != last);
+  if (hasOrphan) {
+    T orphan = *it;
+    orphan.pushIndex(index);
+    losers.push_back(orphan);
+  }
+
+  std::pair<std::deque<T>, std::deque<T> > pairs;
+  pairs.first = winners;
+  pairs.second = losers;
+  return pairs;
+}
+
+template <typename T>
+void PmergeMe::popIndexes(std::deque<T> &vec) {
+  for (typename std::deque<T>::iterator it = vec.begin(); it != vec.end();
+       it++) {
+    T &item = *it;
+    item.popIndex();
+  }
+}
+
+template <typename T>
+std::deque<T> PmergeMe::mergeVectors(std::deque<T> &winners,
+                                      std::deque<T> &losers) {
+  typedef typename std::deque<T>::iterator iterator;
+
+  std::deque<T> merged;
+
+  // merged.reserve(winners.size() + losers.size());
+  for (size_t i = 0; i < winners.size(); i++) {
+    merged.push_back(winners[i]);
+  }
+
+  // printVector(merged, "Merge_before:");
+
+  std::vector<size_t> schedule;
+  schedule = Jacobsthal::getInsertionOrder(losers.size());
+
+  // printVector(schedule, "Schedule:");
+
+  size_t inserted_count = 0;
+  for (size_t i = 0; i < schedule.size(); i++) {
+    T loser;
+    size_t schedule_index = schedule[i];
+
+    if (winners.size() != losers.size() && schedule_index == winners.size()) {
+      loser = losers[schedule_index];
+    } else {
+      size_t common_index = winners[schedule_index].getIndex();
+      size_t loser_index;
+      for (loser_index = 0; loser_index < losers.size(); loser_index++) {
+        if (losers[loser_index].getIndex() == common_index) {
+          loser = losers[loser_index];
+          break;
+        }
+      }
+    }
+
+    iterator search_start = merged.begin();
+    iterator search_end = merged.begin() + schedule_index + inserted_count;
+    iterator pos = std::lower_bound(search_start, search_end, loser);
+    if (pos == merged.end()) {
+      merged.push_back(loser);
+    } else {
+      merged.insert(pos, loser);
+    }
+    inserted_count++;
+  }
+  return merged;
+}
+
+template <typename T>
+void PmergeMe::printVector(std::deque<T> &vec, std::string explain) const {
+  // show text with padding
+  std::cout << explain << std::string(18 - explain.size(), ' ');
+  for (typename std::deque<T>::iterator it = vec.begin(); it != vec.end();
+       ++it) {
+    std::cout << *it << " ";
+  }
+}
+
+template <typename iterator>
+void PmergeMe::mergeInsertionSortDeque(iterator first, iterator last) {
+  // Return if the range is empty or has one element
+  size_t n = std::distance(first, last);
+  if (n <= 1) return;
+
+  typedef typename std::iterator_traits<iterator>::value_type T;
+
+  std::pair<std::deque<T>, std::deque<T> > pairs = extract<T>(first, last);
+
+  std::deque<T> winners = pairs.first;
+  std::deque<T> winners_copy = winners;  // for debug
+  std::deque<T> losers = pairs.second;
+
+  mergeInsertionSortDeque(winners.begin(), winners.end());
+
+  std::deque<T> mergerd = mergeVectors(winners, losers);
+
+  // printVector(winners_copy, std::string("Winners_before:"));
+  // printVector(winners, std::string("Winners_after:"));
+  // printVector(losers, std::string("Losers:"));
+  // printVector(mergerd, "Merged:");
+
+  popIndexes(mergerd);
+
+  // std::cout << std::endl;
+
+  std::copy(mergerd.begin(), mergerd.end(), first);
+}
+
+
