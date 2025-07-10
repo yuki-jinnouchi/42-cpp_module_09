@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <stack>
+#include <list>
 #include <stdexcept>
 // #include <iostream>
 
@@ -23,7 +24,7 @@ RPN& RPN::operator=(const RPN& other) {
 
 // Member functions
 double RPN::evaluate(const std::string& expression) {
-  std::stack<double> stack;
+  std::stack<double, std::list<double> > stack;
   for (size_t i = 0; i < expression.length(); i++) {
     char c = expression[i];
     if (c == ' ') continue;
