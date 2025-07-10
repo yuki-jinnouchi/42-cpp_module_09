@@ -1,0 +1,22 @@
+# Test cases for RPN
+# Format: input_expression, expected_output
+# Error cases will be marked with "Error"
+
+# Basic operations
+"8 9 * 9 - 9 - 9 - 4 - 1 +", 42
+"7 7 * 7 -", 42
+"1 2 * 2 / 2 * 2 4 - +", 0
+
+# Simple operations
+"1 2 +", 3
+"5 3 -", 2
+"4 2 *", 8
+"8 2 /", 4
+
+# Error cases
+"(1 + 1)", Error
+"1 +", Error
+"1 2", Error
+"1 2 + +", Error
+"", Error
+"1 0 /", Error
