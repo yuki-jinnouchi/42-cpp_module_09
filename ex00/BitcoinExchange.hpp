@@ -8,6 +8,8 @@ class BitcoinExchange {
  public:
   // Orthodox Canonical Form
   BitcoinExchange();
+  BitcoinExchange(const BitcoinExchange& other);
+  BitcoinExchange& operator=(const BitcoinExchange& other);
   ~BitcoinExchange();
 
   // Member functions
@@ -15,10 +17,6 @@ class BitcoinExchange {
   void processInputFile(const std::string& filename);
 
  private:
-  // Orthodox Canonical Form
-  BitcoinExchange(const BitcoinExchange& other);
-  BitcoinExchange& operator=(const BitcoinExchange& other);
-
   // Member variables
   std::map<std::string, double> _database;
 
@@ -29,6 +27,11 @@ class BitcoinExchange {
   double getExchangeRate(const std::string& date);
   void printResult(const std::string& date, double value, double rate);
   void printError(const std::string& message);
+
+  // Utility functions
+  int stringToInt(const std::string& str);
+  double stringToDouble(const std::string& str);
+  std::string doubleToString(double value);
 };
 
 #endif

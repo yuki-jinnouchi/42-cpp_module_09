@@ -1,8 +1,11 @@
 #include "BitcoinExchange.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <sstream>
+#include <string>
 
 // Orthodox Canonical Form
 BitcoinExchange::BitcoinExchange() {}
@@ -21,7 +24,7 @@ BitcoinExchange::~BitcoinExchange() {}
 
 // Member functions
 bool BitcoinExchange::loadDatabase(const std::string& filename) {
-  std::ifstream file(filename);
+  std::ifstream file(filename.c_str());
   if (!file.is_open()) return false;
 
   std::string line;
@@ -34,7 +37,7 @@ bool BitcoinExchange::loadDatabase(const std::string& filename) {
       printError("invalid line format in database: " + line);
       break;
     }
-    if (!isValidDate(date) || !isValidRate(std::to_string(rate))) {
+    if (!isValidDate(date) || !isValidRate(doubleToString(rate))) {
       printError("invalid date or value in database: " + line);
       break;
     }
@@ -47,7 +50,7 @@ bool BitcoinExchange::loadDatabase(const std::string& filename) {
 }
 
 void BitcoinExchange::processInputFile(const std::string& filename) {
-  std::ifstream file(filename);
+  std::ifstream file(filename.c_str());  // 修正: c_str() を使用
   if (!file.is_open()) {
     printError("could not open file.");
     return;
@@ -63,7 +66,8 @@ void BitcoinExchange::processInputFile(const std::string& filename) {
       continue;
     }
     date.erase(std::remove(date.begin(), date.end(), ' '), date.end());
-    valueStr.erase(std::remove(valueStr.begin(), valueStr.end(), ' '), valueStr.end());
+    valueStr.erase(std::remove(valueStr.begin(), valueStr.end(), ' '),
+                   valueStr.end());
     if (!isValidDate(date)) {
       printError("invalid date format => " + date);
       continue;
@@ -71,7 +75,7 @@ void BitcoinExchange::processInputFile(const std::string& filename) {
     if (!isValidValue(valueStr)) {
       continue;
     }
-    double value = std::stod(valueStr);
+    double value = stringToDouble(valueStr);
     double rate = getExchangeRate(date);
     if (rate < 0)
       printError("No exchange rate found for date => " + date);
@@ -83,11 +87,10 @@ void BitcoinExchange::processInputFile(const std::string& filename) {
 // Helper functions
 bool BitcoinExchange::isValidDate(const std::string& date) {
   if (date.size() != 10 || date[4] != '-' || date[7] != '-') return false;
-  int year, month, day;
-  year = std::stoi(date.substr(0, 4));
-  month = std::stoi(date.substr(5, 2));
-  day = std::stoi(date.substr(8, 2));
-  if (year < 0 || 3000 < year) return false; // Bitcoin started in 2009
+  int year = stringToInt(date.substr(0, 4));
+  int month = stringToInt(date.substr(5, 2));
+  int day = stringToInt(date.substr(8, 2));
+  if (year < 2009) return false;  // Bitcoin started in 2009
   if (month < 1 || 12 < month) return false;
   if (day < 1 || 31 < day) return false;
   return true;
@@ -105,11 +108,12 @@ bool BitcoinExchange::isValidValue(const std::string& value) {
     printError("invalid character in value.");
     return false;
   }
-  if (std::stod(value) < 0) {
+  double num = stringToDouble(value);
+  if (num < 0) {
     printError("not a positive number.");
     return false;
   }
-  if (1000.0 < std::stod(value)) {
+  if (1000.0 < num) {
     printError("too large a number.");
     return false;
   }
@@ -119,8 +123,7 @@ bool BitcoinExchange::isValidValue(const std::string& value) {
 double BitcoinExchange::getExchangeRate(const std::string& date) {
   std::map<std::string, double>::iterator it = _database.lower_bound(date);
   if (it == _database.end()) return -1.0;
-  if (it->first != date)
-    --it;
+  if (it->first != date) --it;
   return it->second;
 }
 
@@ -131,4 +134,24 @@ void BitcoinExchange::printResult(const std::string& date, double value,
 
 void BitcoinExchange::printError(const std::string& message) {
   std::cerr << "Error: " << message << std::endl;
+}
+
+int BitcoinExchange::stringToInt(const std::string& str) {
+  std::istringstream iss(str);
+  int num;
+  iss >> num;
+  return num;
+}
+
+double BitcoinExchange::stringToDouble(const std::string& str) {
+  std::istringstream iss(str);
+  double num;
+  iss >> num;
+  return num;
+}
+
+std::string BitcoinExchange::doubleToString(double value) {
+  std::ostringstream oss;
+  oss << value;
+  return oss.str();
 }

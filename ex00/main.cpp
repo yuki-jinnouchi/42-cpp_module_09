@@ -8,6 +8,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   BitcoinExchange bitcoinExchange;
+
   // import data.csv file
   if (!bitcoinExchange.loadDatabase("data.csv")) {
     std::cerr << "Error: could not load database." << std::endl;
