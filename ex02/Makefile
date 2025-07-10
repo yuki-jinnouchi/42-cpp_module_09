@@ -81,6 +81,10 @@ test:	$(NAME)
 
 TEST_SIZE = 1000
 
+TEST_REFERENCE = tests/b001768.txt
+TEST_PREFERENCE_URL = https://oeis.org/A001768/b001768.txt
+# https://discord.com/channels/691903146909237289/1081112604082176030/1298675926288302255
+
 ifeq ($(shell uname), Linux)
 	TEST_COMMAND = shuf -i 1-$(TEST_SIZE) -n $(TEST_SIZE) | tr "\n" " "
 else ifeq ($(shell uname), Darwin)
@@ -88,12 +92,16 @@ else ifeq ($(shell uname), Darwin)
 endif
 
 mytest:	$(NAME)
+	@if [ ! -f $(TEST_REFERENCE) ]; then \
+		echo "$(BOLD)Downloading test reference file...$(RESET)"; \
+		wget -q $(TEST_PREFERENCE_URL) -O $(TEST_REFERENCE); \
+	fi
+	@echo "Input :"
 	@echo $$( $(TEST_COMMAND) )
+	@echo ""
 	@$(NAME) $$( $(TEST_COMMAND) )
 	@echo ""
 	@./tests/maxComp.sh $(TEST_SIZE)
-
-# https://discord.com/channels/691903146909237289/1081112604082176030/1298675926288302255
 
 #-----------------------------------------------
 debug:
