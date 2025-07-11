@@ -1,0 +1,17 @@
+2009-01-02 => 1.1 = 0
+2010-08-20 => 1.1 = 0.077
+Error: date out of Database range: 2009-01-01
+2011-01-01 => 1000 = 300
+Error: too large a number.
+2011-01-03 => 0 = 0
+Error: not a positive number.
+Error: invalid character in value.
+Error: invalid character in value.
+Error: not a correct value format.
+2011-01-06 => 11 = 3.3
+2099-01-06 => 1 = 47115.9
+Error: bad input => 2011-01-06 |
+Error: bad input => 2099-01-06
+Error: invalid date format => 20xx-01-06
+Error: bad input => 20xx-01-06 |
+Error: not a correct value format.

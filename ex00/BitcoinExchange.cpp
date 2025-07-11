@@ -7,6 +7,8 @@
 #include <sstream>
 #include <string>
 
+#include "Date.hpp"
+
 // Orthodox Canonical Form
 BitcoinExchange::BitcoinExchange() {}
 
@@ -31,15 +33,24 @@ bool BitcoinExchange::loadDatabase(const std::string& filename) {
   std::getline(file, line);
   while (std::getline(file, line)) {
     std::istringstream iss(line);
-    std::string date;
+    std::string str_date;
     double rate;
-    if (!std::getline(iss, date, ',') || !(iss >> rate)) {
+    if (!std::getline(iss, str_date, ',') || !(iss >> rate)) {
       printError("invalid line format in database: " + line);
       break;
     }
-    if (!isValidDate(date) || !isValidRate(doubleToString(rate))) {
-      printError("invalid date or value in database: " + line);
-      break;
+    Date date(str_date);
+    if (!date.isValid()) {
+      if (!date.isValidFormat()) {
+        printError("invalid date format in database: " + str_date);
+      } else if (!date.isValidDate()) {
+        printError("invalid date in database: " + str_date);
+      }
+      return false;
+    }
+    if (!isValidRate(doubleToString(rate))) {
+      printError("invalid rate in database: " + doubleToString(rate));
+      return false;
     }
     _database[date] = rate;
   }
@@ -50,7 +61,7 @@ bool BitcoinExchange::loadDatabase(const std::string& filename) {
 }
 
 void BitcoinExchange::processInputFile(const std::string& filename) {
-  std::ifstream file(filename.c_str());  // 修正: c_str() を使用
+  std::ifstream file(filename.c_str());
   if (!file.is_open()) {
     printError("could not open file.");
     return;
@@ -60,52 +71,72 @@ void BitcoinExchange::processInputFile(const std::string& filename) {
   std::getline(file, line);
   while (std::getline(file, line)) {
     std::istringstream iss(line);
-    std::string date, valueStr;
-    if (!std::getline(iss, date, '|') || !std::getline(iss, valueStr)) {
+    std::string str_date, valueStr;
+    if (!std::getline(iss, str_date, '|') || !std::getline(iss, valueStr)) {
       printError("bad input => " + line);
       continue;
     }
-    date.erase(std::remove(date.begin(), date.end(), ' '), date.end());
+    str_date.erase(std::remove(str_date.begin(), str_date.end(), ' '),
+                   str_date.end());
     valueStr.erase(std::remove(valueStr.begin(), valueStr.end(), ' '),
                    valueStr.end());
-    if (!isValidDate(date)) {
-      printError("invalid date format => " + date);
+    Date date(str_date);
+    if (!date.isValid()) {
+      if (!date.isValidFormat()) {
+        printError("invalid date format => " + str_date);
+      } else if (!date.isValidDate()) {
+        printError("invalid date => " + str_date);
+      }
       continue;
     }
-    if (!isValidValue(valueStr)) {
-      continue;
-    }
+    if (!isValidDateRange(date)) continue;
+    if (!isValidValue(valueStr)) continue;
     double value = stringToDouble(valueStr);
     double rate = getExchangeRate(date);
     if (rate < 0)
-      printError("No exchange rate found for date => " + date);
+      printError("No exchange rate found for date => " + str_date);
     else
-      printResult(date, value, rate * value);
+      printResult(str_date, value, rate * value);
   }
 }
 
 // Helper functions
-bool BitcoinExchange::isValidDate(const std::string& date) {
-  if (date.size() != 10 || date[4] != '-' || date[7] != '-') return false;
-  int year = stringToInt(date.substr(0, 4));
-  int month = stringToInt(date.substr(5, 2));
-  int day = stringToInt(date.substr(8, 2));
-  if (year < 2009) return false;  // Bitcoin started in 2009
-  if (month < 1 || 12 < month) return false;
-  if (day < 1 || 31 < day) return false;
+bool BitcoinExchange::isValidDateRange(const Date& date) {
+  Date minDate = _database.begin()->first;
+
+  if (date < minDate) {
+    printError("date out of Database range: " + date.toString());
+    return false;
+  }
   return true;
 }
 
 bool BitcoinExchange::isValidRate(const std::string& rate) {
   if (rate.empty()) return false;
   if (rate[0] == '-') return false;
+  if (rate[0] == '.') return false;
+  if (rate[rate.size() - 1] == '.') return false;
   if (rate.find_first_not_of("0123456789.") != std::string::npos) return false;
+  if (std::count(rate.begin(), rate.end(), '.') > 1) {
+    return false;
+  }
   return true;
 }
 
 bool BitcoinExchange::isValidValue(const std::string& value) {
+  if (value.empty()) return false;
   if (value.find_first_not_of("0123456789.-") != std::string::npos) {
     printError("invalid character in value.");
+    return false;
+  }
+  if (value[0] == '.' || value[value.size() - 1] == '.' ||
+      std::count(value.begin(), value.end(), '.') > 1 ||
+      std::count(value.begin(), value.end(), '-') > 1) {
+    printError("not a correct value format.");
+    return false;
+  }
+  if (value[0] == '-') {
+    printError("not a positive number.");
     return false;
   }
   double num = stringToDouble(value);
@@ -120,10 +151,10 @@ bool BitcoinExchange::isValidValue(const std::string& value) {
   return true;
 }
 
-double BitcoinExchange::getExchangeRate(const std::string& date) {
-  std::map<std::string, double>::iterator it = _database.lower_bound(date);
-  if (it == _database.end()) return -1.0;
-  if (it->first != date) --it;
+double BitcoinExchange::getExchangeRate(const Date& date) {
+  std::map<Date, double>::iterator it = _database.upper_bound(date);
+  if (it == _database.begin()) return -1.0;
+  --it;
   return it->second;
 }
 

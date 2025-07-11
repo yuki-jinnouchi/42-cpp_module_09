@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 
+#include "Date.hpp"
+
 class BitcoinExchange {
  public:
   // Orthodox Canonical Form
@@ -18,13 +20,13 @@ class BitcoinExchange {
 
  private:
   // Member variables
-  std::map<std::string, double> _database;
+  std::map<Date, double> _database;
 
   // Helper functions
-  bool isValidDate(const std::string& date);
+  bool isValidDateRange(const Date& date);
   bool isValidRate(const std::string& rate);
   bool isValidValue(const std::string& value);
-  double getExchangeRate(const std::string& date);
+  double getExchangeRate(const Date& date);
   void printResult(const std::string& date, double value, double rate);
   void printError(const std::string& message);
 

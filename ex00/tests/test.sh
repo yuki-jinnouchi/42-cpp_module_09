@@ -30,8 +30,10 @@ run_test() {
         echo -e "${RED}✗ FAIL${NC}"
         echo "Expected:"
         cat "$expected_file"
+        echo ""
         echo "Got:"
         cat temp_output.txt
+        echo ""
         echo "Diff:"
         diff "$expected_file" temp_output.txt
     fi
@@ -53,7 +55,8 @@ fi
 rm -f temp_output.txt
 
 # Test with valid input
-run_test "Valid input file" "tests/test_inputs/input.txt" "tests/expected_outputs/expected_output.txt"
+run_test "Default input.txt" "tests/test_inputs/input.txt" "tests/test_outputs/output.txt"
+run_test "myTest1" "tests/test_inputs/myinput1.txt" "tests/test_outputs/myoutput1.txt"
 
 echo -e "\n${YELLOW}Results: $pass_count/$test_count tests passed${NC}"
 

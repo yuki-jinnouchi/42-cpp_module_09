@@ -8,7 +8,7 @@ SOURCES_DIR =		.
 OBJECTS_DIR =		objs
 
 # Files
-SOURCES =		BitcoinExchange.cpp main.cpp
+SOURCES =		Date.cpp BitcoinExchange.cpp main.cpp
 INCLUDES =	$(patsubst $(SOURCES_DIR)/%.cpp, $(INCLUDES_DIR)/%.hpp, $(SOURCES))
 OBJECTS =		$(SOURCES:%.cpp=$(OBJECTS_DIR)/%.o)
 
@@ -80,7 +80,7 @@ TEST_SHELL =		$(TEST_DIR)/test.sh
 
 test: $(NAME)
 	@echo "$(B_BLUE)Running Bitcoin Exchange tests...$(RESET)"
-	@bash $(TEST_SHELL)
+	@bash $(TEST_SHELL) $(NAME) ./input.txt $(TEST_DIR)/output.txt
 
 #-----------------------------------------------
 debug:
