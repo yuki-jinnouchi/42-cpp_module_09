@@ -81,8 +81,8 @@ test:	$(NAME)
 
 TEST_SIZE = 1000
 
-TEST_REFERENCE = tests/b001768.txt
 TEST_PREFERENCE_URL = https://oeis.org/A001768/b001768.txt
+TEST_REFERENCE = tests/numbers.txt
 # https://discord.com/channels/691903146909237289/1081112604082176030/1298675926288302255
 
 ifeq ($(shell uname), Linux)

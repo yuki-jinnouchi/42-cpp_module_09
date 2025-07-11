@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OEIS_FILE="./tests/b001768.txt"
+OEIS_FILE="./tests/numbers.txt"
 BINARY="./PmergeMe"
 
 if [ ! -f "$OEIS_FILE" ]; then
