@@ -4,10 +4,8 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+B_BLUE='\033[1;34m'
 NC='\033[0m' # No Color
-
-echo -e "${YELLOW}Building Bitcoin Exchange...${NC}"
-make && echo -e "${GREEN}Build successful${NC}" || exit 1
 
 test_count=0
 pass_count=0
@@ -18,7 +16,7 @@ run_test() {
     local input_file="$2"
     local expected_file="$3"
 
-    echo -e "\n${YELLOW}Testing: $test_name${NC}"
+    echo -e "${YELLOW}Testing: $test_name${NC}"
     ((test_count++))
 
     ./btc "$input_file" > temp_output.txt 2>&1
@@ -41,7 +39,8 @@ run_test() {
 }
 
 # Test no file argument
-echo -e "\n${YELLOW}Testing: No file argument${NC}"
+echo -e "${B_BLUE}Running Bitcoin Exchange tests...${NC}"
+echo -e "${YELLOW}Testing: No file argument${NC}"
 ((test_count++))
 ./btc > temp_output.txt 2>&1
 if grep -q "could not open file" temp_output.txt; then

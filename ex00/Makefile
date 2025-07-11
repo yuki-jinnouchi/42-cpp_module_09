@@ -79,7 +79,6 @@ TEST_SHELL =		$(TEST_DIR)/test.sh
 .PHONY: test
 
 test: $(NAME)
-	@echo "$(B_BLUE)Running Bitcoin Exchange tests...$(RESET)"
 	@bash $(TEST_SHELL) $(NAME) ./input.txt $(TEST_DIR)/output.txt
 
 #-----------------------------------------------
