@@ -21,5 +21,7 @@ docs/
 
 # Project files
 ex00/btc
+ex00/data.csv
 ex01/RPN
 ex02/PmergeMe
+ex02/tests/numbers.txt
