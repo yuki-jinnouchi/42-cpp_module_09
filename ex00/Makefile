@@ -79,7 +79,7 @@ TEST_SHELL =		$(TEST_DIR)/test.sh
 .PHONY: test
 
 test: $(NAME)
-	@bash $(TEST_SHELL) $(NAME) ./input.txt $(TEST_DIR)/output.txt
+	@bash $(TEST_SHELL) $(NAME)
 
 #-----------------------------------------------
 debug:
